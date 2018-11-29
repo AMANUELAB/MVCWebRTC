@@ -7,4 +7,4 @@ var $remoteVideo		= $( '#remoteVideo' );
 var $localVideo			= $( '#localVideo' );
 var $btnStartCall		= $( '#startCall' );
 var $btnHangUp			= $( '#hangUp' );
-var $BtnReady			= $( '#BtnReady' )
+var $BtnReady			= $( '#BtnReady' );
