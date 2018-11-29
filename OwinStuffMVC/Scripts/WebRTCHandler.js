@@ -14,23 +14,24 @@ if ( navigator.mediaDevices === undefined )
 {
 	alert( "Güncel Firefox veya Chrome tarayıcısı kullanınız. Kullandığınız tarayıcı bu uygulamayı desteklemiyor." );
 }
-else{
-
-navigator.mediaDevices.getUserMedia( sdpConstraints )
-	.then( function ( stream )
-	{
-		localStream				= stream;
-		$localVideo.srcObject	= stream;
-
-		$localVideo.onloadedmetadata = function ( e )
+else
+{
+	navigator.mediaDevices.getUserMedia( sdpConstraints )
+		.then( function ( stream )
 		{
-			$localVideo.play();
-		};
-	} )
-	.catch( function ( err )
-	{
-		alert( "Error occurred while recognizing devices!\n --> " + err.message );
-	} );
+			connect();
+			localStream				= stream;
+			$localVideo.srcObject	= stream;
+
+			$localVideo.onloadedmetadata = function ( e )
+			{
+				$localVideo.play();
+			};
+		} )
+		.catch( function ( err )
+		{
+			alert( "Error occurred while recognizing devices!\n --> " + err.message );
+		} );
 }
 
 function ErrorHandler( message )
@@ -49,10 +50,9 @@ function connect()
         };
         connection.onaddstream = function ( e )
         {
-            // Call the polyfill wrapper to attach the media stream to this element.
             $btnStartCall.prop( 'disabled', true );	
-            $remoteVideo.srcObject = e.stream;		//Attach stream to remoteVideo object
-            trace( 'received remote stream' );		
+            $remoteVideo.srcObject = e.stream;
+            trace( 'Remote Stream Received' );		
         };
     }
     else
@@ -62,7 +62,6 @@ function connect()
 }
 
 $btnStartCall.click( function () {
-	connect();
 	call();
 });
 
