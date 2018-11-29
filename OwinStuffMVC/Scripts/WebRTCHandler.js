@@ -5,17 +5,6 @@ var localStream;
 var connection;
 var servers = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] };
 
-var $displayName	= document.querySelector( '#displayname' );
-var $groupName		= document.querySelector( '#groupName' );
-var $discussion		= document.querySelector( '#discussion' );
-var $message		= document.querySelector( '#message' );
-var $btnSendMessage = document.querySelector( '#sendmessage' );
-var $remoteVideo	= document.querySelector( '#remoteVideo' );
-var $localVideo		= document.querySelector( '#localVideo' );
-var $btnStartCall	= document.querySelector( '#startCall' );
-var $btnHangUp		= document.querySelector( '#hangUp' );
-var $BtnReady		= document.querySelector( '#BtnReady' );
-
 var sdpConstraints = {
     audio: true,
 	video: true
