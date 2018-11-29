@@ -126,7 +126,7 @@ function onCreateOfferSuccess( desc )
 function answer( message ) {
     connection.setRemoteDescription( new RTCSessionDescription( message.sdp ), 
 		function () {
-			if ( localStream != null ) {
+			if ( localStream !== null ) {
 				connection.addStream(localStream);
 			}
             connection.createAnswer( function ( desc ) {
@@ -139,7 +139,7 @@ function answer( message ) {
 
 function getAnswer( message )
 {
-	if ( message.sdp != null )
+	if ( message.sdp !== null )
 	{
 		connection.setRemoteDescription( new RTCSessionDescription( message.sdp ) );
 	} else
