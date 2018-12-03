@@ -13,7 +13,7 @@ namespace SignalRChat
 		public string noGroupMessage    = "Bir gruba katılmadın. Katılmak için tekrar giriş yap.";
 
 		public static List<string>               GroupNameList      = new List<string>();
-		public static Dictionary<string,string>  UserConnectionList = new Dictionary<string, string>(); //	< UserName, ConnectionId >
+		public static Dictionary<string, string> UserConnectionList = new Dictionary<string, string>(); //	< UserName, ConnectionId >
 		public static Dictionary<string, string> UserGroupList      = new Dictionary<string, string>(); //	< UserName, GroupName >
 
 		public void Send( string name, string message, string groupName )
@@ -47,9 +47,9 @@ namespace SignalRChat
 			Clients.Group( groupName, connectionId ).sendAnswer( sdp );
 		}
 
-		public void IceCandidate( string ice )
+		public void IceCandidate( string userName, string ice )
 		{
-			var groupName           = UserGroupList[ UserConnectionList.FirstOrDefault( x => x.Value == Context.ConnectionId ).Key ];
+			var groupName           = UserGroupList[ UserConnectionList[ userName ] ];
 			var otherConnectionId   = UserConnectionList[ UserGroupList.FirstOrDefault( x => x.Value == groupName ).Key ];
 			Clients.Group( groupName, otherConnectionId ).sendIce( ice );
 		}
@@ -68,6 +68,17 @@ namespace SignalRChat
 		}
 		public override Task OnDisconnected( bool stopCalled )
 		{
+			var userName	= UserConnectionList.FirstOrDefault( x => x.Value == Context.ConnectionId ).Key;
+			var groupName	= UserGroupList[ userName ];
+
+			if( UserGroupList.Count( x => x.Value == groupName ) == 1 ) // If that group has only one person left, delete group
+			{
+				GroupNameList.Remove( groupName );
+			}
+
+			UserGroupList.Remove( userName );
+			UserConnectionList.Remove( userName );
+
 			return base.OnDisconnected( stopCalled );
 		}
 	}
