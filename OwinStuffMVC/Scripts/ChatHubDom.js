@@ -8,3 +8,5 @@ var $localVideo		= document.querySelector( '#localVideo' );
 var $btnStartCall	= document.querySelector( '#startCall' );
 var $btnHangUp		= document.querySelector( '#hangUp' );
 var $BtnReady		= document.querySelector( '#BtnReady' );
+var $InfoMessage	= document.querySelector( '#txtInfoMessage' );
+var $InfoField		= document.querySelector( '#infoField' );

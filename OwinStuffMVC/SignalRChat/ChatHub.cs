@@ -63,8 +63,19 @@ namespace SignalRChat
 			{
 				UserConnectionList.Add( userName, Context.ConnectionId );
 			}
+
 			UserGroupList.Add( userName, groupName );
 			Groups.Add( Context.ConnectionId, groupName );
+
+			if( UserGroupList.Count( x => x.Value.Equals( groupName ) ) == 2 )
+			{
+				Clients.Group( groupName ).showStartCallButton( false );
+			}
+			else
+			{
+				Clients.Group( groupName ).showStartCallButton( true );
+			}
+			Clients.Group( groupName ).joinedInfo( userName );
 		}
 		public override Task OnDisconnected( bool stopCalled )
 		{
@@ -76,6 +87,7 @@ namespace SignalRChat
 				GroupNameList.Remove( groupName );
 			}
 
+			Groups.Remove( Context.ConnectionId, groupName );
 			UserGroupList.Remove( userName );
 			UserConnectionList.Remove( userName );
 

@@ -3,21 +3,29 @@
 var startTime;
 var localStream;
 var connection;
-var servers = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302',
-								 'urls': 'stun:stun1.l.google.com:19302',
-								 'urls': 'stun:stun2.l.google.com:19302',
-								 'urls': 'stun:stun3.l.google.com:19302',
-								 'urls': 'stun:stun4.l.google.com:19302'}] };
+var isReady = false;
+var servers = {
+	'iceServers': [{
+		'urls': 'stun:stun4.l.google.com:19302'
+	}] };
 
 var sdpConstraints = {
 	audio: true,
-	video: false
+	video: true
 };
 
 var chat = $.connection.chatHub;
 
 $( function ()
 {
+
+	while ( $displayName.value === '' ) {
+		$displayName.value = prompt( 'Please enter your name:', '' );
+	}
+	while ( $groupName.innerHTML === '' ) {
+		$groupName.innerHTML = prompt( 'Please enter the group name:', '' );
+
+	}
 	// Reference the auto-generated proxy for the hub.
 	// Create a function that the hub can call back to display messages.
 	chat.client.addNewMessageToPage = function ( name, message )
@@ -34,15 +42,24 @@ $( function ()
 
 		$discussion.appendChild( HtmlItem_LI );
 	};
+	chat.client.showStartCallButton = function ( state )
+	{
+		$btnStartCall.disabled = state;
+	};
+	chat.client.joinedInfo = function ( userName )
+	{
+		$InfoMessage.innerHTML = userName + " odaya katıldı.";
+		$InfoField.classList.add( "show" );
+	};
 	chat.client.displayErrorMessage = function ( strErr )
 	{
 		alert( strErr );
-	};
+	};	
 	chat.client.sendOffer = function ( desc )
 	{
 		console.log( "answering" );
 		answer( JSON.parse( desc ) );
-	}
+	};
 	chat.client.sendAnswer = function ( desc )
 	{
 		console.log( "Getting Answer" );
@@ -52,21 +69,12 @@ $( function ()
         trace('Ice sent ' + desc);
         addIceCandidate(JSON.parse(desc));
     };
-
-	// Get the user name and store it to prepend to messages.
-	while ( $displayName.value === '' )
-	{
-		$displayName.value = prompt( 'Please enter your name:', '' );
-	}
-	while ( $groupName.innerHTML === '' )
-	{
-		$groupName.innerHTML = prompt( 'Please enter the group name:', '' );
-	}
 	// Set initial focus to message input box.
 	$message.focus();
 	// Start the connection.
 	$.connection.hub.start().done( function ()
 	{
+		// Get the user name and store it to prepend to messages.
 		chat.server.joinOrCreateGroup( $displayName.value, $groupName.innerHTML );
 		$btnSendMessage.onclick = function ()
 		{
@@ -75,7 +83,7 @@ $( function ()
 			// Clear text box and reset focus for next comment.
 			$message.value = '';
 			$message.focus();
-		}
+		};
 	} );
 } );
 // This optional function html-encodes messages for display in the page.
@@ -112,22 +120,28 @@ else
 var errorHandler = function ( err )
 {
 	alert( err );
-}
+};
 
 function connect()
 {
 	if ( RTCPeerConnection )
 	{
-		connection = new RTCPeerConnection( servers );
+		connection = new RTCPeerConnection( null );	// If browser offers you a STUN server, take it. Servers you added are for turn.
 		connection.onicecandidate = function ( e )
 		{
 			chat.server.iceCandidate( $displayName, JSON.stringify( { "candidate": e.candidate } ) );
 		};
-		connection.on = function ( e )
+		connection.ontrack = function ( e )
 		{
 			$btnStartCall.attributes( 'disabled', true );
-			$remoteVideo.srcObject = e.stream;
+			$remoteVideo.srcObject = e.streams[0];
 			console.log( 'Remote Stream Received' );
+		};
+		connection.onremovetrack = function ( e )
+		{
+			$btnStartCall.attributes( 'disabled', false );
+			$remoteVideo.srcObject = null;
+			console.log( 'Remote Stream Removed. Event: ', e );
 		};
 	}
 	else
@@ -185,6 +199,7 @@ function answer( message )
 			if ( localStream !== null )
 			{
 				connection.addStream( localStream );
+				console.log( "Added local stream to connection" );
 			}
 			connection.createAnswer( function ( desc )
 			{
@@ -214,8 +229,8 @@ function onSetLocalSuccess()
 }
 
 function addIceCandidate(message) {
-    if (message.candidate != null) {
-        trace('add ice candidate');
+    if (message.candidate !== null) {
+        trace('ICE candidate added.');
         connection.addIceCandidate(new RTCIceCandidate(message.candidate));
     }
 }
