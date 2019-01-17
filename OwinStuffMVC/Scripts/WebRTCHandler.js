@@ -54,7 +54,7 @@ $( function ()
 	chat.client.displayErrorMessage = function ( strErr )
 	{
 		alert( strErr );
-	};	
+	};
 	chat.client.sendOffer = function ( desc )
 	{
 		console.log( "answering" );
